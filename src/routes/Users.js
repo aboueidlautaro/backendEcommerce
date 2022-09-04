@@ -55,6 +55,7 @@ router.get("/basicinfo/:id", async (req, res) => {
     `SELECT * FROM users WHERE id = '${id}'`,
     { attributes: { excluded: ["password"] } }
   );
+  res.json(basicInfo);
 });
 
 module.exports = router;
