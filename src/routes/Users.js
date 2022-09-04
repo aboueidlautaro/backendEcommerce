@@ -10,7 +10,7 @@ const connection = require("../config/config");
 router.post("/", async (req, res) => {
   const { username, password } = req.body;
   bcrypt.hash(password, 10).then((hash) => {
-    const response = connection.query(
+    connection.query(
       `INSERT INTO users (username, password) VALUES ('${username}', '${hash}')`
     );
     res.json({ message: "Usuario creado correctamente" });
