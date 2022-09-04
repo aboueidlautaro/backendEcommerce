@@ -1,6 +1,6 @@
-const { mysql } = require("mysql2");
+var mysql = require("mysql");
 
-const connection = mysql.createConnection({
+var connection = mysql.createConnection({
   host: "containers-us-west-41.railway.app",
   user: "root",
   password: "mT9XZ1uFBtLDTBXf6SXE",
