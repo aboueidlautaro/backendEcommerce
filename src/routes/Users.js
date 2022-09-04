@@ -11,7 +11,7 @@ router.post("/", async (req, res) => {
   const { username, password } = req.body;
   bcrypt.hash(password, 10).then((hash) => {
     connection.query(
-      "INSERT INTO users WHERE (username = ? AND password = ?)",
+      "INSERT INTO users (username, password) VALUES (?, ?)",
       [username, hash],
       (err, result) => {
         res.json(result);
