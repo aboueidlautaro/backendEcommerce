@@ -14,7 +14,11 @@ router.post("/", async (req, res) => {
       "INSERT INTO users (username, password) VALUES (?, ?)",
       [username, hash],
       (err, result) => {
-        res.json(result);
+        if (err) {
+          res.json(err);
+        } else {
+          res.json(result);
+        }
       }
     );
     res.json("Usuario creado correctamente");
