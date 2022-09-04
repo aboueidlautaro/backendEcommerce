@@ -13,8 +13,12 @@ router.post("/", async (req, res) => {
     connection.query(
       "INSERT INTO users (username, password) VALUES (?, ?)",
       [username, hash],
-      (err, result) => {
-        res.json(result);
+      (err, rows, fields) => {
+        if (err) {
+          console.log(err);
+        } else {
+          res.json(rows);
+        }
       }
     );
     res.json({
