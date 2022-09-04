@@ -13,7 +13,12 @@ router.post("/", async (req, res) => {
     connection.query(
       `INSERT INTO users (username, password) VALUES ('${username}', '${hash}')`
     );
-    res.json({ message: "Usuario creado correctamente" });
+    res.json({
+      message: "Usuario creado correctamente",
+      body: {
+        user: { username, password },
+      },
+    });
   });
 });
 
