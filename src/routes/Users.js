@@ -67,7 +67,7 @@ router.get("auth", validateToken, (req, res) => {
 router.get("/basicinfo/:id", async (req, res) => {
   const id = req.params.id;
 
-  const basicInfo = await connection.query(
+  const basicInfo = connection.query(
     "SELECT id, username, user_role FROM users WHERE id = ?",
     [id],
     (err, result) => {
