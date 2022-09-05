@@ -68,17 +68,15 @@ router.get("/basicinfo/:id", async (req, res) => {
   const id = req.params.id;
 
   const basicInfo = connection.query(
-    connection.query(
-      "SELECT * from users WHERE id = ?",
-      [id],
-      (err, rows, fields) => {
-        if (err) {
-          res.json(err);
-        } else {
-          res.json(rows);
-        }
+    "SELECT id, username, user_role FROM users WHERE id = ?",
+    [id],
+    (err, result) => {
+      if (err) {
+        res.json(err);
+      } else {
+        res.json(result);
       }
-    )
+    }
   );
   res.json(basicInfo);
 });
