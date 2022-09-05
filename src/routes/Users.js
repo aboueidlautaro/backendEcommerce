@@ -71,11 +71,11 @@ router.get("/basicinfo/:id", async (req, res) => {
     connection.query(
       "SELECT * from users WHERE id = ?",
       [id],
-      (err, result) => {
+      (err, rows, fields) => {
         if (err) {
           res.json(err);
         } else {
-          res.json(result);
+          res.json(rows);
         }
       }
     )
@@ -88,11 +88,11 @@ router.put("/changepassword", validateToken, async (req, res) => {
   const user = connection.query(
     "SELECT * FROM users WHERE username = ?",
     [req.user.username],
-    (err, result) => {
+    (err, rows, fields) => {
       if (err) {
         res.json(err);
       } else {
-        res.json(result);
+        res.json(rows);
       }
     }
   );
