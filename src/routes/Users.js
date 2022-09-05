@@ -10,27 +10,21 @@ const pool = require("../config/config");
 router.post("/", async (req, res) => {
   const { username, password } = req.body;
   bcrypt.hash(password, 10).then((hash) => {
-    pool.query("INSERT INTO users (username, password) VALUES ($1, $2)", [
-      username,
-      hash,
-    ]);
-    res.json("Usuario creado correctamente");
+    pool.query(
+      `INSERT INTO users (username, password) VALUES ('${username}', '${hash}')`
+    );
+    res.json({
+      message: "Usuario creado correctamente",
+      body: {
+        user: { username, password },
+      },
+    });
   });
 });
 
 router.post("/login", async (req, res) => {
   const { username, password } = req.body;
-  const user = pool.query(
-    "SELECT * FROM users WHERE username = $1",
-    [username],
-    (err, result) => {
-      if (err) {
-        res.json(err);
-      } else {
-        res.json(result);
-      }
-    }
-  );
+  const user = pool.query(`SELECT * FROM users WHERE username = '${username}'`);
   if (user.length === 0) {
     return res.json({ error: "El usuario no existe" });
   }
@@ -58,18 +52,8 @@ router.get("auth", validateToken, (req, res) => {
 });
 
 router.get("/basicinfo/:id", async (req, res) => {
-  const id = req.params.id;
-
   const basicInfo = pool.query(
-    "SELECT id, username, user_role FROM users WHERE id = $1",
-    [id],
-    (err, result) => {
-      if (err) {
-        res.json(err);
-      } else {
-        res.json(result);
-      }
-    }
+    `SELECT id, username, user_role FROM users WHERE id = '${req.params.id}'`
   );
   res.json(basicInfo);
 });
@@ -77,22 +61,14 @@ router.get("/basicinfo/:id", async (req, res) => {
 router.put("/changepassword", validateToken, async (req, res) => {
   const { oldPassword, newPassword } = req.body;
   const user = pool.query(
-    "SELECT * FROM users WHERE username = $1",
-    [req.user.username],
-    (err, rows, fields) => {
-      if (err) {
-        res.json(err);
-      } else {
-        res.json(rows);
-      }
-    }
+    `SELECT * FROM users WHERE username = '${req.user.username}'`
   );
   bcrypt.compare(oldPassword, user[0].password).then((match) => {
     if (!match) return res.json({ error: "Contraseña incorrecta" });
     bcrypt.hash(newPassword, 10).then((hash) => {
       pool.query(
-        "UPDATE users SET password = $1 WHERE username = $2",
-        [hash, req.user.username],
+        `UPDATE users SET password = '${hash}' WHERE username = '${req.user.username}'`,
+
         (err, result) => {
           if (err) {
             res.json(err);
