@@ -27,9 +27,16 @@ router.post("/", async (req, res) => {
 
 router.post("/login", async (req, res) => {
   const { username, password } = req.body;
-  const user = await connection.query(
+  const user = connection.query(
     "SELECT * FROM users WHERE username = ?",
-    [username]
+    [username],
+    (err, result) => {
+      if (err) {
+        res.json(err);
+      } else {
+        res.json(result);
+      }
+    }
   );
   if (user.length === 0) {
     return res.json({ error: "El usuario no existe" });
@@ -60,12 +67,50 @@ router.get("auth", validateToken, (req, res) => {
 router.get("/basicinfo/:id", async (req, res) => {
   const id = req.params.id;
 
-  const basicInfo = await connection.query(
-    "SELECT * FROM users WHERE id = ?",
+  const basicInfo = connection.query(
+    "SELECT id, username, user_role FROM users WHERE id = ?",
     [id],
-    { attributes: { excluded: ["password"] } }
+
+    (err, result) => {
+      if (err) {
+        res.json(err);
+      } else {
+        res.json(result);
+      }
+    }
   );
   res.json(basicInfo);
+});
+
+router.put("/changepassword", validateToken, async (req, res) => {
+  const { oldPassword, newPassword } = req.body;
+  const user = connection.query(
+    "SELECT * FROM users WHERE username = ?",
+    [req.user.username],
+    (err, result) => {
+      if (err) {
+        res.json(err);
+      } else {
+        res.json(result);
+      }
+    }
+  );
+  bcrypt.compare(oldPassword, user[0].password).then((match) => {
+    if (!match) return res.json({ error: "Contraseña incorrecta" });
+    bcrypt.hash(newPassword, 10).then((hash) => {
+      connection.query(
+        "UPDATE users SET password = ? WHERE username = ?",
+        [hash, req.user.username],
+        (err, result) => {
+          if (err) {
+            res.json(err);
+          } else {
+            res.json(result);
+          }
+        }
+      );
+    });
+  });
 });
 
 module.exports = router;
