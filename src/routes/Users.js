@@ -5,12 +5,12 @@ const bcrypt = require("bcryptjs");
 const { validateToken } = require("../middlewares/AuthMiddleware");
 const { sign } = require("jsonwebtoken");
 
-const connection = require("../config/config");
+const pool = require("../config/config");
 
 router.post("/", async (req, res) => {
   const { username, password } = req.body;
   bcrypt.hash(password, 10).then((hash) => {
-    connection.query(
+    pool.query(
       "INSERT INTO users (username, password) VALUES (?, ?)",
       [username, hash],
       (err, result) => {
@@ -27,7 +27,7 @@ router.post("/", async (req, res) => {
 
 router.post("/login", async (req, res) => {
   const { username, password } = req.body;
-  const user = connection.query(
+  const user = pool.query(
     "SELECT * FROM users WHERE username = ?",
     [username],
     (err, result) => {
@@ -67,7 +67,7 @@ router.get("auth", validateToken, (req, res) => {
 router.get("/basicinfo/:id", async (req, res) => {
   const id = req.params.id;
 
-  const basicInfo = connection.query(
+  const basicInfo = pool.query(
     "SELECT id, username, user_role FROM users WHERE id = ?",
     [id],
     (err, result) => {
@@ -83,7 +83,7 @@ router.get("/basicinfo/:id", async (req, res) => {
 
 router.put("/changepassword", validateToken, async (req, res) => {
   const { oldPassword, newPassword } = req.body;
-  const user = connection.query(
+  const user = pool.query(
     "SELECT * FROM users WHERE username = ?",
     [req.user.username],
     (err, rows, fields) => {
@@ -97,7 +97,7 @@ router.put("/changepassword", validateToken, async (req, res) => {
   bcrypt.compare(oldPassword, user[0].password).then((match) => {
     if (!match) return res.json({ error: "Contraseña incorrecta" });
     bcrypt.hash(newPassword, 10).then((hash) => {
-      connection.query(
+      pool.query(
         "UPDATE users SET password = ? WHERE username = ?",
         [hash, req.user.username],
         (err, result) => {

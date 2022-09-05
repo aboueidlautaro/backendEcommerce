@@ -1,11 +1,11 @@
-var mysql = require("mysql2");
+var { Pool } = require("pg");
 
-var connection = mysql.createConnection({
-  host: "containers-us-west-41.railway.app",
-  user: "root",
-  password: "mT9XZ1uFBtLDTBXf6SXE",
+var pool = new Pool({
+  host: "containers-us-west-81.railway.app",
+  user: "postgres",
+  password: "zGsqfYYPRIIwcfa3FPDH",
   database: "railway",
-  port: "7183",
+  port: "7507",
 });
 
-module.exports = connection;
+module.exports = pool;
