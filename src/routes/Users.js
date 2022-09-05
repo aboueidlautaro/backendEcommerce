@@ -10,17 +10,10 @@ const pool = require("../config/config");
 router.post("/", async (req, res) => {
   const { username, password } = req.body;
   bcrypt.hash(password, 10).then((hash) => {
-    pool.query(
-      "INSERT INTO users (username, password) VALUES (?, ?)",
-      [username, hash],
-      (err, result) => {
-        if (err) {
-          res.json(err);
-        } else {
-          res.json(result);
-        }
-      }
-    );
+    pool.query("INSERT INTO users (username, password) VALUES ($1, $2)", [
+      username,
+      hash,
+    ]);
     res.json("Usuario creado correctamente");
   });
 });
@@ -28,7 +21,7 @@ router.post("/", async (req, res) => {
 router.post("/login", async (req, res) => {
   const { username, password } = req.body;
   const user = pool.query(
-    "SELECT * FROM users WHERE username = ?",
+    "SELECT * FROM users WHERE username = $1",
     [username],
     (err, result) => {
       if (err) {
@@ -68,7 +61,7 @@ router.get("/basicinfo/:id", async (req, res) => {
   const id = req.params.id;
 
   const basicInfo = pool.query(
-    "SELECT id, username, user_role FROM users WHERE id = ?",
+    "SELECT id, username, user_role FROM users WHERE id = $1",
     [id],
     (err, result) => {
       if (err) {
@@ -84,7 +77,7 @@ router.get("/basicinfo/:id", async (req, res) => {
 router.put("/changepassword", validateToken, async (req, res) => {
   const { oldPassword, newPassword } = req.body;
   const user = pool.query(
-    "SELECT * FROM users WHERE username = ?",
+    "SELECT * FROM users WHERE username = $1",
     [req.user.username],
     (err, rows, fields) => {
       if (err) {
@@ -98,7 +91,7 @@ router.put("/changepassword", validateToken, async (req, res) => {
     if (!match) return res.json({ error: "Contraseña incorrecta" });
     bcrypt.hash(newPassword, 10).then((hash) => {
       pool.query(
-        "UPDATE users SET password = ? WHERE username = ?",
+        "UPDATE users SET password = $1 WHERE username = $2",
         [hash, req.user.username],
         (err, result) => {
           if (err) {
